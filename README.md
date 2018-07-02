@@ -1,7 +1,11 @@
 # typescript-preview README
 
 Preview the '.ts' file with '.js' in moment.（实时预览ts文件编译出的js）
-> If you have some issue, just let me know https://github.com/win7killer/vue-format
+> If you have some issue, just let me know https://github.com/win7killer/vscode-ts-preview
+
+## demo 版本，请勿尝试
+
+<hr/>
 
 ## Features
 
