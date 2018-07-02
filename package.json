@@ -1,0 +1,57 @@
+{
+    "name": "type-script-preview",
+    "displayName": "TypeScript Preview",
+    "description": "",
+    "version": "0.0.1",
+    "preview": true,
+    "publisher": "febean",
+    "icon": "images/logo.png",
+    "engines": {
+        "vscode": "^1.2.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.tsPreview"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/win7killer/vscode-ts-preview"
+    },
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "when": "resourceLangId == typescript",
+                "command": "extension.tsPreview",
+                "title": "TS Preview"
+            }
+        ],
+        "menus": {
+            "editor/context": [
+                {
+                    "when": "resourceLangId == typescript",
+                    "command": "extension.tsPreview",
+                    "group": "navigation"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.42",
+        "@types/node": "^7.0.43",
+        "tslint": "^5.8.0",
+        "vscode": "^1.1.6"
+    },
+    "dependencies": {
+        "typescript": "^2.9.2"
+    }
+}
