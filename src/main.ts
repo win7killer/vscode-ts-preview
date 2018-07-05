@@ -93,18 +93,24 @@ export class Main {
         this.newText = oContent.outputText;
     }
     getPreviewDoc(): void {
-        window.visibleTextEditors.forEach(item => {
-            if (item.document === this.tsDoc) {
-                this.writeFile(item);
-                return;
-            }
-        });
         window.showTextDocument(this.tsDoc, {
             viewColumn: previewColumn,
             preserveFocus: true,
             preview: true,
+        }).then((textEditor) => {
+            if (textEditor.document === this.tsDoc) {
+                this.writeFile(textEditor);
+                return;
+            }
         });
-        this.writeFile(window.visibleTextEditors[previewColumn - 1]);
+        // window.visibleTextEditors.forEach(item => {
+        //     if (item.document === this.tsDoc) {
+        //         this.writeFile(item);
+        //         return;
+        //     }
+        // });
+
+        // this.writeFile(window.visibleTextEditors[previewColumn - 1]);
     }
 
     /**
