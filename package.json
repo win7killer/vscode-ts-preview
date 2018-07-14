@@ -7,7 +7,7 @@
     "publisher": "febean",
     "icon": "images/logo.png",
     "engines": {
-        "vscode": "^1.12.0"
+        "vscode": "^1.23.0"
     },
     "categories": [
         "Other"
@@ -46,11 +46,13 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
+        "@types/highlight.js": "^9.12.3",
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
+        "highlight.js": "^9.12.0",
         "tslint": "^5.8.0",
-        "vscode": "^1.1.6",
-        "typescript": "^2.9.2"
+        "typescript": "^2.9.2",
+        "vscode": "^1.1.6"
     },
     "dependencies": {
         "typescript": "^2.9.2"

@@ -5,6 +5,8 @@
 
 import * as vscode from 'vscode';
 import * as ts from 'typescript';
+import * as hightLight from 'highlight.js';
+import {rHtml} from './read_file';
 let {
     window,
     Position,
@@ -15,12 +17,14 @@ let {
 
 let editor: any;
 let previewColumn: number = 2;
-
+let tplStr = rHtml('../template.html', {mini: true});
+let isShowWebview: boolean = true;
 export class Main {
     doc: vscode.TextDocument;
     tsDoc: any; // 展示 preview 的 document
     text: string;
     newText: string;
+    panel: any;
     constructor() {
         // 活动窗口
         editor = window.activeTextEditor;
@@ -29,6 +33,7 @@ export class Main {
         this.tsDoc = undefined;
         this.text = '';
         this.newText = '';
+
         this.init();
     }
     init(): void {
@@ -40,7 +45,7 @@ export class Main {
     bindEvn(): void {
         let that = this;
         let timer: any;
-        workspace.onDidChangeTextDocument(function(e) {
+        workspace.onDidChangeTextDocument(function (e) {
             clearTimeout(timer);
             if (window.visibleTextEditors.length < 2) {
                 return;
@@ -54,7 +59,7 @@ export class Main {
                     // 触发 ts 编译
                     that.takeTrans(lineStart);
                 }
-            }, 302);
+            }, 100);
         });
     }
     takeTrans(lineStart: number): void {
@@ -62,25 +67,14 @@ export class Main {
         this.text = this.doc.getText();
         // ts 转化 js
         this.tsTpJsContent();
-        // 新窗口展示 js preview | 编辑器形式
-        if (this.tsDoc) {
-            this.getPreviewDoc();
+        //****************** 计划加入 markdown.preview 形式，可能会有性能提升 */
+        if (isShowWebview) {
+            // webview 展示
+            this.previewOnWebview();
         } else {
-            workspace.openTextDocument({
-                content: this.newText,
-                language: 'javascript',
-            }).then(doc => {
-                this.tsDoc = doc;
-                window.showTextDocument(this.tsDoc, {
-                    viewColumn: previewColumn,
-                    preserveFocus: true,
-                    preview: true,
-                });
-            });
+            // 新窗口展示 js preview | 编辑器形式
+            this.previewOnDoc();
         }
-        // webview 形式预览 ? 只支持html?
-        // let panel: any = window.createWebviewPanel('js.preview', 'ts-preview.js', 2, {});
-        // panel.webview.html = oContent.outputText;
     }
     tsTpJsContent(): void {
         let oContent: any = ts.transpileModule(this.text, {
@@ -103,14 +97,38 @@ export class Main {
                 return;
             }
         });
-        // window.visibleTextEditors.forEach(item => {
-        //     if (item.document === this.tsDoc) {
-        //         this.writeFile(item);
-        //         return;
-        //     }
-        // });
-
-        // this.writeFile(window.visibleTextEditors[previewColumn - 1]);
+    }
+    previewOnDoc(): void {
+        if (this.tsDoc) {
+            this.getPreviewDoc();
+        } else {
+            workspace.openTextDocument({
+                content: this.newText,
+                language: 'javascript',
+            }).then(doc => {
+                this.tsDoc = doc;
+                window.showTextDocument(this.tsDoc, {
+                    viewColumn: previewColumn,
+                    preserveFocus: true,
+                    preview: true,
+                });
+            });
+        }
+    }
+    previewOnWebview(): void {
+        // webview 形式预览 ? 只支持html?
+        if (isShowWebview && !this.panel) {
+            this.panel = window.createWebviewPanel(
+                'js.preview',
+                'ts-preview',
+                previewColumn,
+                {}
+            );
+        }
+        let str: string = hightLight.highlightAuto(this.newText).value;
+        let code = `<code class="js">${str}</code>`;
+        let tplStr1 : string = tplStr.replace(/\$\{code\}/, code).trim();
+        this.panel.webview.html = tplStr1;
     }
 
     /**
