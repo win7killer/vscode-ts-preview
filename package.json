@@ -1,7 +1,7 @@
 {
     "name": "type-script-preview",
     "displayName": "TypeScript Preview",
-    "description": "",
+    "description": "Preview .ts in .js at the moment, just like the official playground. It's a preview version now.",
     "version": "0.0.1",
     "preview": true,
     "publisher": "febean",

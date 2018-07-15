@@ -18,7 +18,7 @@ let {
 let editor: any;
 let previewColumn: number = 2;
 let tplStr = rHtml('../template.html', {mini: true});
-let isShowWebview: boolean = true;
+let isShowWebview: boolean = false;
 export class Main {
     doc: vscode.TextDocument;
     tsDoc: any; // 展示 preview 的 document
