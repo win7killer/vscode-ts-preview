@@ -36,6 +36,22 @@
                     "group": "navigation"
                 }
             ]
+        },
+        "configuration": {
+            "type": "object",
+            "title": "ts-preview",
+            "properties": {
+                "ts-preview.mode": {
+                    "scope": "window",
+					"type": "string",
+					"enum": [
+						"editor",
+						"webview"
+					],
+					"default": "editor",
+					"description": "预览模式，编辑器模式和webview模式"
+                }
+            }
         }
     },
     "scripts": {
@@ -46,12 +62,9 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/highlight.js": "^9.12.3",
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
-        "highlight.js": "^9.12.0",
         "tslint": "^5.8.0",
-        "typescript": "^2.9.2",
         "vscode": "^1.1.6"
     },
     "dependencies": {

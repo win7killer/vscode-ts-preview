@@ -1,6 +1,6 @@
 let cc: string = '121212';
 
-let nn: number  = 123;
+let nn: number  = 1234;
 
 enum SomeType {
     animal,

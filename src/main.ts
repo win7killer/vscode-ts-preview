@@ -5,8 +5,10 @@
 
 import * as vscode from 'vscode';
 import * as ts from 'typescript';
-import * as hightLight from 'highlight.js';
+import * as path from 'path';
+
 import {rHtml} from './read_file';
+
 let {
     window,
     Position,
@@ -17,15 +19,19 @@ let {
 
 let editor: any;
 let previewColumn: number = 2;
-let tplStr = rHtml('../template.html', {mini: true});
-let isShowWebview: boolean = false;
+let tplStr: string = '';
+
 export class Main {
     doc: vscode.TextDocument;
     tsDoc: any; // 展示 preview 的 document
     text: string;
     newText: string;
     panel: any;
-    constructor() {
+    previewMode: string;
+    themeSource: any;
+    scriptSource: any;
+    context: vscode.ExtensionContext;
+    constructor(context: vscode.ExtensionContext) {
         // 活动窗口
         editor = window.activeTextEditor;
         // 当前窗口document
@@ -33,21 +39,27 @@ export class Main {
         this.tsDoc = undefined;
         this.text = '';
         this.newText = '';
-
+        this.previewMode = this.getConfig().mode || 'editor';
+        this.context = context;
+        this.themeSource = '';
+        this.scriptSource = '';
         this.init();
     }
     init(): void {
         // 获取配置
         // let conf = this.getConfig();
+        // vscode.window.showInformationMessage('gogo');
+
         this.takeTrans(0);
         this.bindEvn();
+
     }
     bindEvn(): void {
         let that = this;
         let timer: any;
         workspace.onDidChangeTextDocument(function (e) {
             clearTimeout(timer);
-            if (window.visibleTextEditors.length < 2) {
+            if (window.visibleTextEditors.length < 1) {
                 return;
             }
             let lineStart: number = 0;
@@ -66,17 +78,35 @@ export class Main {
         // 内容
         this.text = this.doc.getText();
         // ts 转化 js
-        this.tsTpJsContent();
+        this.newText = this.tsTpJsContent();
+
         //****************** 计划加入 markdown.preview 形式，可能会有性能提升 */
-        if (isShowWebview) {
+        if (this.previewMode === 'webview') {
             // webview 展示
+            if (!tplStr) {
+                tplStr = rHtml('../resource/template.html', {mini: true});
+            }
+            if (!this.scriptSource) {
+                this.scriptSource = this.getScript();
+            }
+            if (!this.themeSource) {
+                this.themeSource = this.getThemes();
+            }
             this.previewOnWebview();
-        } else {
+        } else if (this.previewMode === 'editor') {
             // 新窗口展示 js preview | 编辑器形式
             this.previewOnDoc();
         }
     }
-    tsTpJsContent(): void {
+    getThemes () {
+        const onDiskPath = vscode.Uri.file(path.join(this.context.extensionPath, 'resource', 'theme.css'));
+        return onDiskPath.with({ scheme: 'vscode-resource' });
+    }
+    getScript() {
+        const onDiskPath = vscode.Uri.file(path.join(this.context.extensionPath, 'resource', 'highlight.pack.js'));
+        return onDiskPath.with({ scheme: 'vscode-resource' });
+    }
+    tsTpJsContent(): string {
         let oContent: any = ts.transpileModule(this.text, {
             compilerOptions: {
                 module: ts.ModuleKind.CommonJS,
@@ -84,7 +114,7 @@ export class Main {
             },
             reportDiagnostics: true,
         });
-        this.newText = oContent.outputText;
+        return oContent.outputText;
     }
     getPreviewDoc(): void {
         window.showTextDocument(this.tsDoc, {
@@ -117,17 +147,23 @@ export class Main {
     }
     previewOnWebview(): void {
         // webview 形式预览 ? 只支持html?
-        if (isShowWebview && !this.panel) {
+        if (!this.panel) {
             this.panel = window.createWebviewPanel(
                 'js.preview',
                 'ts-preview',
                 previewColumn,
-                {}
+                {
+                    enableScripts: true
+                }
             );
         }
-        let str: string = hightLight.highlightAuto(this.newText).value;
-        let code = `<code class="js">${str}</code>`;
-        let tplStr1 : string = tplStr.replace(/\$\{code\}/, code).trim();
+        let code = `<code class="javascript">${this.newText}</code>`;
+        let tplStr1 : string = tplStr
+            .replace(/\$\{code\}/, code)
+            .replace(/\$\{themeSource\}/, `${this.themeSource.scheme}:${this.themeSource.path}`)
+            .replace(/\$\{scriptSource\}/, `${this.scriptSource.scheme}:${this.scriptSource.path}`)
+
+            .trim();
         this.panel.webview.html = tplStr1;
     }
 
@@ -146,8 +182,12 @@ export class Main {
         });
 
     }
-    getConfig() {
-        return {};
+    getConfig() : any {
+        let configMode = workspace.getConfiguration('ts-preview').get('mode');
+        console.log(configMode);
+        return {
+            mode: configMode
+        };
     }
 }
 
