@@ -108,6 +108,12 @@ export class Main {
     }
     tsTpJsContent(): string {
         let oContent: any = ts.transpileModule(this.text, {
+            // compilerOptions?: CompilerOptions;
+            // fileName?: string;
+            // reportDiagnostics?: boolean;
+            // moduleName?: string;
+            // renamedDependencies?: MapLike<string>;
+            // transformers?: CustomTransformers;
             compilerOptions: {
                 module: ts.ModuleKind.CommonJS,
                 target: ts.ScriptTarget.ES2016,
