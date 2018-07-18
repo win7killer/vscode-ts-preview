@@ -4,8 +4,7 @@ Preview the '.ts' file with '.js' in moment.（实时预览ts文件编译出的j
 > If you have some issue, just let me know https://github.com/win7killer/vscode-ts-preview [welcome star]
 
 ## preview version, welcome to try. (预览版本，欢迎尝鲜)
-<img src="./images/command.gif" alt="command" width=600/>
-<hr/>
+<img src="https://raw.githubusercontent.com/win7killer/vscode-ts-preview/master/images/command.gif" alt="command" width=600/>
 
 
 ## Features
@@ -40,7 +39,7 @@ Preview the '.ts' file with '.js' in moment.（实时预览ts文件编译出的j
 
 ## To do list
 - 修改文件后，预览文件关闭前会提醒是否保存，待处理
--  webview 版本的阅览处理  // done
+- webview 模式 预览处理  // done
 - markdown.preview 模式
 - 本地资源文件尝试引入【解决多主题样式文件】 // next
 - 多栏情况测试，可能会有异常，比如原文件在第2栏，预览出现在第2栏

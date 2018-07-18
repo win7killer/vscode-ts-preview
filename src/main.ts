@@ -1,5 +1,5 @@
 /**
- * @file 格式化 单vue组件 文件
+ * @file main js
  * @author fe_bean
  */
 
