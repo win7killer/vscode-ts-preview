@@ -1,18 +1,17 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { Main } from './main';
+import main from './main';
 
 export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('extension.tsPreview', () => {
         let acEditor = vscode.window.activeTextEditor;
-        if (acEditor && acEditor.document.languageId == 'typescript') {
-            new Main(context);
+        if (acEditor && acEditor.document.languageId === 'typescript') {
+            main.init(acEditor);
         } else {
             vscode.window.showInformationMessage('It‘s not a .ts(x) file');
         }
     });
-
     context.subscriptions.push(disposable);
 }
 

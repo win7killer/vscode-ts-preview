@@ -4,124 +4,61 @@
  */
 
 import * as vscode from 'vscode';
-import * as ts from 'typescript';
-import * as path from 'path';
-
-import {rHtml} from './read_file';
+import {transpileModule, ModuleKind, ScriptTarget} from 'typescript';
 
 let {
     window,
     Position,
     Range,
     workspace,
-    // StatusBarAlignment
+
 } = vscode;
 
-let editor: any;
 let previewColumn: number = 2;
-let tplStr: string = '';
 
-export class Main {
-    doc: vscode.TextDocument;
+class Main {
+    doc: any;
     tsDoc: any; // 展示 preview 的 document
     text: string;
     newText: string;
     panel: any;
-    previewMode: string;
     themeSource: any;
     scriptSource: any;
-    context: vscode.ExtensionContext;
-    constructor(context: vscode.ExtensionContext) {
-        // 活动窗口
-        editor = window.activeTextEditor;
+    constructor() {
         // 当前窗口document
-        this.doc = editor.document;
         this.tsDoc = undefined;
         this.text = '';
         this.newText = '';
-        this.previewMode = this.getConfig().mode || 'editor';
-        this.context = context;
         this.themeSource = '';
         this.scriptSource = '';
-        this.init();
     }
-    init(): void {
-        // 获取配置
-        // let conf = this.getConfig();
-        // vscode.window.showInformationMessage('gogo');
-
-        this.takeTrans(0);
+    init(editor: vscode.TextEditor): void {
+        this.doc = editor.document;
+        this.handleTrans();
         this.bindEvn();
-
+    }
+    handleTrans(): void {
+        this.newText = tsTrans.takeTrans(this.doc);
+        this.previewOnDoc();
     }
     bindEvn(): void {
-        let that = this;
         let timer: any;
-        workspace.onDidChangeTextDocument(function (e) {
+        workspace.onDidChangeTextDocument(e => {
             clearTimeout(timer);
-            if (window.visibleTextEditors.length < 1) {
+            if (window.visibleTextEditors.length < 1 || !this.tsDoc || e.document !== this.doc) {
                 return;
             }
-            let lineStart: number = 0;
             timer = setTimeout(() => {
-                if (e.contentChanges.length > 0) {
-                    lineStart = e.contentChanges[0].range.start.line;
-                }
-                if (e.document === that.doc) {
-                    // 触发 ts 编译
-                    that.takeTrans(lineStart);
-                }
+                // 触发 ts 编译
+                this.handleTrans();
             }, 100);
         });
-    }
-    takeTrans(lineStart: number): void {
-        // 内容
-        this.text = this.doc.getText();
-        // ts 转化 js
-        this.newText = this.tsTpJsContent();
 
-        //****************** 计划加入 markdown.preview 形式，可能会有性能提升 */
-        if (this.previewMode === 'webview') {
-            // webview 展示
-            if (!tplStr) {
-                tplStr = rHtml('../resource/template.html', {mini: true});
-            }
-            if (!this.scriptSource) {
-                this.scriptSource = this.getScript();
-            }
-            if (!this.themeSource) {
-                this.themeSource = this.getThemes();
-            }
-            this.previewOnWebview();
-        } else if (this.previewMode === 'editor') {
-            // 新窗口展示 js preview | 编辑器形式
-            this.previewOnDoc();
-        }
-    }
-    getThemes () {
-        const onDiskPath = vscode.Uri.file(path.join(this.context.extensionPath, 'resource', 'theme.css'));
-        return onDiskPath.with({ scheme: 'vscode-resource' });
-    }
-    getScript() {
-        const onDiskPath = vscode.Uri.file(path.join(this.context.extensionPath, 'resource', 'highlight.pack.js'));
-        return onDiskPath.with({ scheme: 'vscode-resource' });
-    }
-    tsTpJsContent(): string {
-        let oContent: any = ts.transpileModule(this.text, {
-            // compilerOptions?: CompilerOptions;
-            // fileName?: string;
-            // reportDiagnostics?: boolean;
-            // moduleName?: string;
-            // renamedDependencies?: MapLike<string>;
-            // transformers?: CustomTransformers;
-            compilerOptions: {
-                module: ts.ModuleKind.CommonJS,
-                target: ts.ScriptTarget.ES2016,
-            },
-            reportDiagnostics: true,
+        workspace.onDidCloseTextDocument(e => {
+            this.tsDoc = undefined;
         });
-        return oContent.outputText;
     }
+
     getPreviewDoc(): void {
         window.showTextDocument(this.tsDoc, {
             viewColumn: previewColumn,
@@ -151,28 +88,6 @@ export class Main {
             });
         }
     }
-    previewOnWebview(): void {
-        // webview 形式预览 ? 只支持html?
-        if (!this.panel) {
-            this.panel = window.createWebviewPanel(
-                'js.preview',
-                'ts-preview',
-                previewColumn,
-                {
-                    enableScripts: true
-                }
-            );
-        }
-        let code = `<code class="javascript">${this.newText}</code>`;
-        let tplStr1 : string = tplStr
-            .replace(/\$\{code\}/, code)
-            .replace(/\$\{themeSource\}/, `${this.themeSource.scheme}:${this.themeSource.path}`)
-            .replace(/\$\{scriptSource\}/, `${this.scriptSource.scheme}:${this.scriptSource.path}`)
-
-            .trim();
-        this.panel.webview.html = tplStr1;
-    }
-
     /**
      * 更新已有的 js preview 内容
      * @param tarEditor
@@ -188,12 +103,41 @@ export class Main {
         });
 
     }
-    getConfig() : any {
-        let configMode = workspace.getConfiguration('ts-preview').get('mode');
-        console.log(configMode);
-        return {
-            mode: configMode
-        };
-    }
 }
+
+let tsTrans = {
+    takeTrans(doc: vscode.TextDocument): string {
+        // 内容
+        let text: string = doc.getText();
+        // ts 转化 js
+        return this.tsTpJsContent(text);
+
+    },
+    tsTpJsContent(text: string): string {
+        let oContent: any = transpileModule(text, {
+            // compilerOptions?: CompilerOptions;
+            // fileName?: string;
+            // reportDiagnostics?: boolean;
+            // moduleName?: string;
+            // renamedDependencies?: MapLike<string>;
+            // transformers?: CustomTransformers;
+            compilerOptions: {
+                module: ModuleKind.CommonJS,
+                target: ScriptTarget.ES2016,
+            },
+            reportDiagnostics: true,
+        });
+        return oContent.outputText;
+    }
+};
+
+export default new Main();
+
+// function getConfig() : any {
+//     let configMode = workspace.getConfiguration('ts-preview').get('mode');
+//     console.log(configMode);
+//     return {
+//         mode: configMode
+//     };
+// }
 

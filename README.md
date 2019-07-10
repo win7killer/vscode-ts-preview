@@ -8,24 +8,13 @@ Preview the '.ts' file with '.js' in moment.（实时预览ts文件编译出的j
 
 
 ## Features
-
+- typescript:[https://www.typescriptlang.org/](https://www.typescriptlang.org/)
 
 ## Requirements
 
 
 ## Extension Settings
-```json
-"ts-preview.mode": {
-    "scope": "window",
-    "type": "string",
-    "enum": [
-        "editor",
-        "webview"
-    ],
-    "default": "editor",
-    "description": "预览模式，编辑器模式和webview模式"
-}
-```
+none
 
 ## Known Issues
 

@@ -2,10 +2,15 @@
     "name": "type-script-preview",
     "displayName": "TypeScript Preview",
     "description": "Preview .ts in .js at the moment, just like the official playground. It's a preview version now.",
-    "version": "0.0.1",
-    "preview": true,
+    "version": "0.0.2",
+    "preview": false,
     "publisher": "febean",
+    "license": "SEE LICENSE IN <LICENSE>",
     "icon": "images/logo.png",
+    "galleryBanner": {
+        "color": "#49edff",
+        "theme": "dark"
+    },
     "engines": {
         "vscode": "^1.23.0"
     },
@@ -15,6 +20,11 @@
     "activationEvents": [
         "onCommand:extension.tsPreview"
     ],
+    "homepage": "https://github.com/win7killer/vscode-ts-preview/blob/master/README.md",
+    "bugs": {
+        "url": "https://github.com/win7killer/vscode-ts-preview/issues",
+        "email": "win7killer@163.com"
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/win7killer/vscode-ts-preview"
@@ -37,22 +47,7 @@
                 }
             ]
         },
-        "configuration": {
-            "type": "object",
-            "title": "ts-preview",
-            "properties": {
-                "ts-preview.mode": {
-                    "scope": "window",
-					"type": "string",
-					"enum": [
-						"editor",
-						"webview"
-					],
-					"default": "editor",
-					"description": "预览模式，编辑器模式和webview模式"
-                }
-            }
-        }
+        "configuration": {}
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
@@ -65,7 +60,7 @@
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
         "tslint": "^5.8.0",
-        "vscode": "^1.1.6"
+        "vscode": "^1.1.35"
     },
     "dependencies": {
         "typescript": "^2.9.2"
