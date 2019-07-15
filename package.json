@@ -54,15 +54,19 @@
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install",
+        "roll": "rollup -c rollup.config.js",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
+        "rollup": "^1.16.7",
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-typescript": "^1.0.1",
+        "tslib": "^1.10.0",
         "tslint": "^5.8.0",
+        "typescript": "^2.9.2",
         "vscode": "^1.1.35"
     },
-    "dependencies": {
-        "typescript": "^2.9.2"
-    }
+    "dependencies": {}
 }

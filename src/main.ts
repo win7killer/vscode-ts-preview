@@ -4,14 +4,13 @@
  */
 
 import * as vscode from 'vscode';
-import {transpileModule, ModuleKind, ScriptTarget} from 'typescript';
-
+import * as ts from 'typescript';
+let {transpileModule, ModuleKind, ScriptTarget} = ts;
 let {
     window,
     Position,
     Range,
     workspace,
-
 } = vscode;
 
 let previewColumn: number = 2;
